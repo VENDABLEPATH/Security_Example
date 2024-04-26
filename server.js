@@ -68,7 +68,7 @@ app.use(passport.session());
 
 
 function checkLoggedIn(req, res, next){
-    const isLoggedIn = req.user;
+    const isLoggedIn = req.isAuthenticated() && req.user;
     if (!isLoggedIn){
         return res.status(401).json({error: "User is not logged in"});
     };
@@ -91,8 +91,13 @@ app.get('/failure', (req, res) => {
     return res.send('Failed to log in.')
 });
 
-app.get('/auth/logout', (req, res) => {
-    // TODO
+app.get('/auth/logout', async (req, res, next) => {
+    await req.logout((err)=>{
+        if (err){
+            return next(err);
+        };
+        res.redirect('/');
+    });
 });
 
 app.get('/secret', checkLoggedIn, (req, res) => {
